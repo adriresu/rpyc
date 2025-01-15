@@ -38,8 +38,18 @@ class Nodo0:
         logging.info("Conexión cerrada por Nodo 0.")
         print("Conexión cerrada.")
 
+    def probar_matriz(self):
+        # Verificar si la matriz está almacenada en el servidor
+        matriz = self.conn.root.obtener_matriz()
+        logging.info("Prueba de matriz en Nodo 0: la matriz está disponible.")
+        print("Matriz disponible en el servidor:")
+        for fila in matriz:
+            print(fila)
+    
+
 if __name__ == "__main__":
     nodo0 = Nodo0()
     matriz = nodo0.crear_y_rellenar_matriz()
     nodo0.sumar_fila_0()
+    nodo0.probar_matriz()
     nodo0.cerrar_conexion()

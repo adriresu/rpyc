@@ -1,5 +1,6 @@
 import rpyc
 import logging
+import time
 
 # Configuración del logging
 logging.basicConfig(
@@ -18,11 +19,18 @@ class NodoCliente:
 
     def obtener_matriz(self):
         logging.info("Nodo Cliente solicita la matriz al servidor.")
-        matriz = self.conn.root.obtener_matriz()
-        logging.info("Matriz recibida por Nodo Cliente:")
-        for fila in matriz:
-            logging.info(fila)
-        return matriz
+        intentos = 10  # Máximo número de intentos
+        for _ in range(intentos):
+            try:
+                matriz = self.conn.root.obtener_matriz()
+                logging.info("Matriz recibida por Nodo Cliente:")
+                for fila in matriz:
+                    logging.info(fila)
+                return matriz
+            except ValueError:
+                logging.warning("Matriz no disponible. Reintentando en 1 segundo...")
+                time.sleep(1)
+        raise RuntimeError("No se pudo obtener la matriz después de varios intentos.")
 
     def sumar_filas_asignadas(self, matriz):
         resultados = {}

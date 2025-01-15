@@ -19,7 +19,7 @@ class NodoCliente:
 
     def obtener_matriz(self):
         logging.info("Nodo Cliente solicita la matriz al servidor.")
-        intentos = 5  # Número máximo de intentos para obtener la matriz
+        intentos = 10  # Aumenta el número máximo de intentos
         for _ in range(intentos):
             try:
                 matriz = self.conn.root.obtener_matriz()
@@ -28,8 +28,8 @@ class NodoCliente:
                     logging.info(fila)
                 return matriz
             except ValueError as e:
-                logging.warning("Matriz no disponible. Reintentando en 1 segundo...")
-                time.sleep(1)  # Esperar 1 segundo antes de reintentar
+                logging.warning("Matriz no disponible. Reintentando en 2 segundos...")
+                time.sleep(2)  # Esperar 2 segundos antes de reintentar
         raise RuntimeError("No se pudo obtener la matriz después de varios intentos.")
 
     def sumar_filas_asignadas(self, matriz):
