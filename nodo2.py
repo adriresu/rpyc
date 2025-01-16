@@ -2,53 +2,32 @@ import rpyc
 import logging
 import time
 
-# Configuración del logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    filename="nodo2.log",
-    filemode="a"
-)
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s",
+                    filename="nodo2.log",
+                    filemode="a")
 
-class NodoCliente:
-    def __init__(self, host="localhost", port=18812, filas=None):
+class Nodo2:
+    def __init__(self, host="localhost", port=18812):
         self.conn = rpyc.connect(host, port)
-        self.filas = filas
-        logging.info(f"Nodo Cliente conectado al servidor en {host}:{port}.")
-        print("Nodo Cliente conectado al servidor.")
-
-    def obtener_matriz(self):
-        logging.info("Nodo Cliente solicita la matriz al servidor.")
-        intentos = 10  # Máximo número de intentos
-        for _ in range(intentos):
-            try:
-                matriz = self.conn.root.obtener_matriz()
-                logging.info("Matriz recibida por Nodo Cliente:")
-                for fila in matriz:
-                    logging.info(fila)
-                return matriz
-            except ValueError:
-                logging.warning("Matriz no disponible. Reintentando en 1 segundo...")
-                time.sleep(1)
-        raise RuntimeError("No se pudo obtener la matriz después de varios intentos.")
-
-    def sumar_filas_asignadas(self, matriz):
-        resultados = {}
-        for fila in self.filas:
-            suma = self.conn.root.sumar_fila(fila)
-            resultados[fila] = suma
-            logging.info(f"Suma de la fila {fila} por Nodo Cliente: {suma}")
-            print(f"Suma de la fila {fila}: {suma}")
-        return resultados
-
-    def cerrar_conexion(self):
-        self.conn.close()
-        logging.info("Conexión cerrada por Nodo Cliente.")
-        print("Conexión cerrada.")
+        logging.info("Nodo 2 conectado al servidor en %s:%s.", host, port)
+        print("Nodo 2 conectado al servidor.")
 
 if __name__ == "__main__":
-    # Nodo 2 suma las filas 4, 5 y 6
-    nodo2 = NodoCliente(filas=[4, 5, 6])
-    matriz = nodo2.obtener_matriz()
-    nodo2.sumar_filas_asignadas(matriz)
-    nodo2.cerrar_conexion()
+    nodo2 = Nodo2()
+    suma = 0
+    flag = True
+    while flag:
+        try:
+            for fila in range(4, 7):
+                suma = nodo2.conn.root.sumar_fila(fila)
+            flag = False
+        except Exception as e:
+            logging.error("Nodo 0 aún no ha creado la matriz.")
+            time.sleep(1)
+
+    nodo2.conn.root.get_suma_total(suma, 1)
+    logging.info("Se sumaron las filas 4,5,6 por el nodo 2:")
+    logging.info(suma)
+
+    nodo2.conn.close()
